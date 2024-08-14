@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const servicesCollection = client.db('clinicZ').collection('services');
+    const bookingsCollection = client.db('clinicZ').collection('bookings');
 
     //get all services
     app.get('/services', async(req, res)=> {
@@ -45,6 +46,13 @@ async function run() {
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
+
+    //post booking
+    app.post('/bookings/', async(req, res)=> {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
