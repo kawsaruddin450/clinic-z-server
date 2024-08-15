@@ -9,8 +9,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res)=> {
-    res.send(`ClinicZ is running on port: ${port}`);
+app.get('/', (req, res) => {
+  res.send(`ClinicZ is running on port: ${port}`);
 })
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5xew4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -33,24 +33,35 @@ async function run() {
     const bookingsCollection = client.db('clinicZ').collection('bookings');
 
     //get all services
-    app.get('/services', async(req, res)=> {
+    app.get('/services', async (req, res) => {
       const cursor = servicesCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
     //get single service 
-    app.get('/services/:id', async(req, res)=> {
+    app.get('/services/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
 
     //post booking
-    app.post('/bookings/', async(req, res)=> {
+    app.post('/bookings/', async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    })
+
+    //get booking
+    app.get('/bookings/', async (req, res) => {
+      let query = {};
+      if(req.query?.email){
+        query = {email : req.query.email}
+      }
+      const cursor = bookingsCollection.find(query);
+      const result = await cursor.toArray();
       res.send(result);
     })
 
@@ -65,6 +76,6 @@ async function run() {
 run().catch(console.dir);
 
 
-app.listen(port, ()=> {
-    console.log("Server is running on:", port);
+app.listen(port, () => {
+  console.log("Server is running on:", port);
 })
